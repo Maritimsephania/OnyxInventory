@@ -1,0 +1,31 @@
+<!-- pos_app/templates/pos_app/index.html -->
+{% extends 'pos_app/base.html' %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1><i class="fas fa-store"></i> Welcome to POS System</h1>
+    <p>A simple and efficient Point of Sale system built with Django</p>
+    <a href="{% url 'pos' %}" class="btn btn-primary">
+        <i class="fas fa-play-circle"></i> Start Selling
+    </a>
+</div>
+
+<div class="features">
+    <div class="feature-card">
+        <i class="fas fa-bolt"></i>
+        <h3>Fast Checkout</h3>
+        <p>Quick and easy product scanning and checkout process</p>
+    </div>
+    <div class="feature-card">
+        <i class="fas fa-chart-bar"></i>
+        <h3>Sales Reports</h3>
+        <p>Track your sales and generate reports easily</p>
+    </div>
+    <div class="feature-card">
+        <i class="fas fa-boxes"></i>
+        <h3>Inventory Management</h3>
+        <p>Manage your product inventory efficiently</p>
+    </div>
+</div>
+{% endblock %}
