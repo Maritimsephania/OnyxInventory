@@ -19,7 +19,7 @@ class MPesaService:
         if self.environment == 'sandbox':
             self.base_url = "https://sandbox.safaricom.co.ke"
         else:
-            self.base_url = "https://api.safaricom.co.ke"
+            self.base_url = "https://sandbox.safaricom.co.ke"
         
         self.access_token = None
         self.token_expiry = None
@@ -121,7 +121,7 @@ class MPesaService:
                 "AccountReference": reference[:12],  # Max 12 chars
                 "TransactionDesc": description[:13]   # Max 13 chars
             }
-            
+            print(payload)
             # Make API request
             url = f"{self.base_url}/mpesa/stkpush/v1/processrequest"
             headers = {
