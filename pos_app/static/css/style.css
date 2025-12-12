@@ -505,3 +505,19 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* M-Pesa specific styles */
+.method-option input[type="radio"] {
+    display: none;
+}
+
+.method-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.method-option i {
+    font-size: 2rem;
+}

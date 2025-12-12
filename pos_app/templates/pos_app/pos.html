@@ -20,7 +20,7 @@
                 <div class="product-info">
                     <h4>{{ product.name }}</h4>
                     <p class="category">{{ product.category.name }}</p>
-                    <p class="price">ksh{{ product.price }}</p>
+                    <p class="price">KES {{ product.price }}</p>
                     <p class="stock">Stock: {{ product.stock }}</p>
                 </div>
                 <button class="btn-add" onclick="addToCart({{ product.id }})">
@@ -41,22 +41,21 @@
         </div>
         
         <div class="cart-items" id="cartItems">
-            <!-- Cart items will be loaded here -->
             <p class="empty-cart">Cart is empty. Add products to get started.</p>
         </div>
         
         <div class="cart-summary">
             <div class="summary-row">
                 <span>Subtotal:</span>
-                <span id="subtotal">ksh 0.00</span>
+                <span id="subtotal">KES 0.00</span>
             </div>
             <div class="summary-row">
-                <span>Tax (10%):</span>
-                <span id="tax">ksh 0.00</span>
+                <span>Tax (16%):</span>
+                <span id="tax">KES 0.00</span>
             </div>
             <div class="summary-row total">
                 <span>Total:</span>
-                <span id="total">ksh 0.00</span>
+                <span id="total">KES 0.00</span>
             </div>
             
             <div class="payment-methods">
@@ -64,17 +63,36 @@
                 <div class="method-options">
                     <label class="method-option">
                         <input type="radio" name="payment" value="cash" checked>
-                        <i class="fas fa-money-bill"></i> Cash
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Cash</span>
                     </label>
                     <label class="method-option">
                         <input type="radio" name="payment" value="card">
-                        <i class="fas fa-credit-card"></i> Card
+                        <i class="fas fa-credit-card"></i>
+                        <span>Card</span>
                     </label>
                     <label class="method-option">
                         <input type="radio" name="payment" value="mobile">
-                        <i class="fas fa-mobile-alt"></i> Mobile
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>M-Pesa</span>
                     </label>
                 </div>
+            </div>
+
+            <!-- M-Pesa Phone Input (hidden by default) -->
+            <div id="mpesaPhoneContainer" style="display: none; margin: 1rem 0;">
+                <label for="mpesaPhone" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">
+                    <i class="fas fa-phone"></i> M-Pesa Phone Number
+                </label>
+                <input 
+                    type="tel" 
+                    id="mpesaPhone" 
+                    placeholder="0712345678 or 254712345678"
+                    style="width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;"
+                >
+                <small style="color: #6c757d; display: block; margin-top: 0.5rem;">
+                    Enter the phone number to receive M-Pesa prompt
+                </small>
             </div>
             
             <button class="btn-checkout" onclick="checkout()">
@@ -83,12 +101,171 @@
         </div>
     </div>
 </div>
+
+<!-- M-Pesa Payment Modal -->
+<div id="mpesaModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-mobile-alt"></i> M-Pesa Payment</h3>
+            <button class="modal-close" onclick="closeMpesaModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="mpesaStatus" class="mpesa-status">
+                <div class="spinner"></div>
+                <p id="mpesaMessage">Initiating payment...</p>
+                <p id="mpesaDetails" style="font-size: 0.9rem; color: #6c757d; margin-top: 1rem;"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #4361ee;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    background: #f0f0f0;
+    color: #212529;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.mpesa-status {
+    text-align: center;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4361ee;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#mpesaMessage {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.5rem;
+}
+
+.mpesa-success {
+    color: #4cc9f0 !important;
+}
+
+.mpesa-error {
+    color: #f72585 !important;
+}
+
+/* Update payment method styles */
+.method-option {
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.method-option:has(input:checked) {
+    border-color: var(--primary-color);
+    background: #f0f4ff;
+}
+
+.method-option span {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.method-option:has(input:checked) span {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
 <script>
+    let currentCartId = null;
+    let paymentCheckInterval = null;
+
     // Load cart items on page load
-    document.addEventListener('DOMContentLoaded', loadCartItems);
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCartItems();
+        setupPaymentMethodToggle();
+    });
+
+    // Setup payment method toggle for M-Pesa phone input
+    function setupPaymentMethodToggle() {
+        const paymentRadios = document.querySelectorAll('input[name="payment"]');
+        const mpesaContainer = document.getElementById('mpesaPhoneContainer');
+        
+        paymentRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'mobile') {
+                    mpesaContainer.style.display = 'block';
+                } else {
+                    mpesaContainer.style.display = 'none';
+                }
+            });
+        });
+    }
     
     function addToCart(productId) {
         fetch('/api/add-to-cart/', {
@@ -117,9 +294,9 @@
                 const cartItems = document.getElementById('cartItems');
                 if (data.items.length === 0) {
                     cartItems.innerHTML = '<p class="empty-cart">Cart is empty. Add products to get started.</p>';
-                    document.getElementById('subtotal').textContent = 'ksh 0.00';
-                    document.getElementById('tax').textContent = 'ksh 0.00';
-                    document.getElementById('total').textContent = 'ksh 0.00';
+                    document.getElementById('subtotal').textContent = 'KES 0.00';
+                    document.getElementById('tax').textContent = 'KES 0.00';
+                    document.getElementById('total').textContent = 'KES 0.00';
                     return;
                 }
                 
@@ -131,10 +308,10 @@
                         <div class="cart-item" data-id="${item.id}">
                             <div class="item-info">
                                 <h4>${item.product}</h4>
-                                <p>ksh${item.price} x ${item.quantity}</p>
+                                <p>KES ${item.price} x ${item.quantity}</p>
                             </div>
                             <div class="item-actions">
-                                <span class="item-total">ksh ${item.total.toFixed(2)}</span>
+                                <span class="item-total">KES ${item.total.toFixed(2)}</span>
                                 <button class="btn-remove" onclick="removeItem(${item.id})">
                                     <i class="fas fa-times"></i>
                                 </button>
@@ -146,12 +323,12 @@
                 
                 cartItems.innerHTML = html;
                 
-                const tax = subtotal * 0.1;
+                const tax = subtotal * 0.16; // 16% VAT in Kenya
                 const total = subtotal + tax;
                 
-                document.getElementById('subtotal').textContent = `ksh ${subtotal.toFixed(2)}`;
-                document.getElementById('tax').textContent = `ksh ${tax.toFixed(2)}`;
-                document.getElementById('total').textContent = `ksh ${total.toFixed(2)}`;
+                document.getElementById('subtotal').textContent = `KES ${subtotal.toFixed(2)}`;
+                document.getElementById('tax').textContent = `KES ${tax.toFixed(2)}`;
+                document.getElementById('total').textContent = `KES ${total.toFixed(2)}`;
             });
     }
     
@@ -172,7 +349,6 @@
     
     function clearCart() {
         if (confirm('Are you sure you want to clear the cart?')) {
-            // Clear all items one by one (simplified approach)
             const items = document.querySelectorAll('.cart-item');
             items.forEach(item => {
                 const itemId = item.dataset.id;
@@ -183,7 +359,33 @@
     
     function checkout() {
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+        const totalText = document.getElementById('total').textContent;
+        const total = parseFloat(totalText.replace('KES ', '').replace(',', ''));
         
+        if (paymentMethod === 'mobile') {
+            // M-Pesa payment flow
+            const phoneNumber = document.getElementById('mpesaPhone').value.trim();
+            
+            if (!phoneNumber) {
+                alert('Please enter M-Pesa phone number');
+                return;
+            }
+            
+            // Validate phone number format
+            const phoneRegex = /^(0|\+?254|254)?[17]\d{8}$/;
+            if (!phoneRegex.test(phoneNumber.replace(/\s/g, ''))) {
+                alert('Please enter a valid Kenyan phone number');
+                return;
+            }
+            
+            initiateMpesaPayment(phoneNumber, total);
+        } else {
+            // Regular checkout (cash/card)
+            regularCheckout(paymentMethod);
+        }
+    }
+
+    function regularCheckout(paymentMethod) {
         fetch('/api/checkout/', {
             method: 'POST',
             headers: {
@@ -197,10 +399,102 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(`Sale completed successfully! Total: ksh ${data.total.toFixed(2)}`);
+                alert(`Sale completed successfully! Total: KES ${data.total.toFixed(2)}`);
                 loadCartItems();
             }
         });
+    }
+
+    function initiateMpesaPayment(phoneNumber, amount) {
+        // Show modal
+        document.getElementById('mpesaModal').style.display = 'flex';
+        document.getElementById('mpesaMessage').textContent = 'Initiating M-Pesa payment...';
+        document.getElementById('mpesaDetails').textContent = `Amount: KES ${amount.toFixed(2)} | Phone: ${phoneNumber}`;
+        
+        // Initiate payment
+        fetch('/api/mpesa/initiate/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                phone_number: phoneNumber,
+                amount: amount,
+                reference: 'POS Payment'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('mpesaMessage').textContent = 'Check your phone for M-Pesa prompt';
+                document.getElementById('mpesaDetails').textContent = data.customer_message || 'Enter your M-Pesa PIN to complete payment';
+                
+                // Start polling for payment status
+                startPaymentStatusCheck(data.checkout_request_id);
+            } else {
+                document.getElementById('mpesaMessage').textContent = 'Payment failed';
+                document.getElementById('mpesaMessage').className = 'mpesa-error';
+                document.getElementById('mpesaDetails').textContent = data.message || 'Unable to initiate payment';
+                document.querySelector('.spinner').style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('mpesaMessage').textContent = 'Connection error';
+            document.getElementById('mpesaMessage').className = 'mpesa-error';
+            document.querySelector('.spinner').style.display = 'none';
+        });
+    }
+
+    function startPaymentStatusCheck(checkoutRequestId) {
+        let attempts = 0;
+        const maxAttempts = 60; // Check for 1 minute (60 * 1 second)
+        
+        paymentCheckInterval = setInterval(() => {
+            attempts++;
+            
+            if (attempts > maxAttempts) {
+                clearInterval(paymentCheckInterval);
+                document.getElementById('mpesaMessage').textContent = 'Payment timeout';
+                document.getElementById('mpesaMessage').className = 'mpesa-error';
+                document.getElementById('mpesaDetails').textContent = 'Payment took too long. Please check M-Pesa message.';
+                document.querySelector('.spinner').style.display = 'none';
+                return;
+            }
+            
+            fetch(`/api/mpesa/status/${checkoutRequestId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.status === 'successful') {
+                            clearInterval(paymentCheckInterval);
+                            document.getElementById('mpesaMessage').textContent = 'Payment successful!';
+                            document.getElementById('mpesaMessage').className = 'mpesa-success';
+                            document.getElementById('mpesaDetails').textContent = `Receipt: ${data.receipt_number}`;
+                            document.querySelector('.spinner').style.display = 'none';
+                            
+                            // Complete checkout
+                            setTimeout(() => {
+                                regularCheckout('mobile');
+                                closeMpesaModal();
+                            }, 2000);
+                        } else if (data.status === 'failed') {
+                            clearInterval(paymentCheckInterval);
+                            document.getElementById('mpesaMessage').textContent = 'Payment failed';
+                            document.getElementById('mpesaMessage').className = 'mpesa-error';
+                            document.querySelector('.spinner').style.display = 'none';
+                        }
+                    }
+                });
+        }, 1000); // Check every second
+    }
+
+    function closeMpesaModal() {
+        if (paymentCheckInterval) {
+            clearInterval(paymentCheckInterval);
+        }
+        document.getElementById('mpesaModal').style.display = 'none';
     }
     
     // Search functionality
